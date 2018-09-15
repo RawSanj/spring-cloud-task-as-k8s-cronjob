@@ -3,6 +3,11 @@ package com.github.rawsanj;
 import com.github.rawsanj.model.CurrencyRate;
 import com.github.rawsanj.repository.CurrencyRateRepository;
 import com.github.rawsanj.service.EmailNotificationService;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -12,8 +17,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.task.configuration.EnableTask;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -26,7 +29,7 @@ import java.util.stream.Collectors;
 @SpringBootApplication
 public class SpringCloudTaskK8sCronJobApplication {
 
-    private final RestTemplate restTemplate;
+    private final OkHttpClient okHttpClient;
     private final EmailNotificationService emailNotificationService;
     private final Environment environment;
     private final CurrencyRateRepository currencyRateRepository;
@@ -35,8 +38,8 @@ public class SpringCloudTaskK8sCronJobApplication {
 
     private static final String URL = "https://bitpay.com/api/rates";
 
-    public SpringCloudTaskK8sCronJobApplication(RestTemplate restTemplate, EmailNotificationService emailNotificationService, Environment environment, CurrencyRateRepository currencyRateRepository) {
-        this.restTemplate = restTemplate;
+    public SpringCloudTaskK8sCronJobApplication(OkHttpClient okHttpClient, EmailNotificationService emailNotificationService, Environment environment, CurrencyRateRepository currencyRateRepository) {
+        this.okHttpClient = okHttpClient;
         this.emailNotificationService = emailNotificationService;
         this.environment = environment;
         this.currencyRateRepository = currencyRateRepository;
@@ -55,10 +58,19 @@ public class SpringCloudTaskK8sCronJobApplication {
             String currency = getValueFromParamKey(args, "currency");
 
             if (currency != null) {
-                ResponseEntity<CurrencyRate> response = restTemplate.getForEntity(URL + "/" + currency, CurrencyRate.class);
-                LOGGER.info("API Response Status: {}", response.getStatusCode());
 
-                CurrencyRate rate = response.getBody();
+                Request request = getRequest(URL + "/" + currency);
+                Response response = okHttpClient.newCall(request).execute();
+
+                String result = response.body().string();
+
+                LOGGER.info("API Response Status: {}", response.code());
+
+                GsonBuilder gsonBuilder = new GsonBuilder();
+                Gson gson = gsonBuilder.create();
+
+                CurrencyRate rate = gson.fromJson(result, CurrencyRate.class);
+
                 rate.setCheckedAt(LocalDateTime.now());
 
                 //Save to Database
@@ -68,10 +80,20 @@ public class SpringCloudTaskK8sCronJobApplication {
                 notifyUser(args, rate);
 
             } else {
-                ResponseEntity<CurrencyRate[]> response = restTemplate.getForEntity(URL, CurrencyRate[].class);
-                LOGGER.info("API Response Status: {}", response.getStatusCode().toString());
+                Request request = getRequest(URL);
+                Response response = okHttpClient.newCall(request).execute();
 
-                List<CurrencyRate> currencyRateList = Arrays.asList(response.getBody())
+                String result = response.body().string();
+
+                LOGGER.info("API Response Status: {}", response.code());
+
+                LOGGER.info("API Response: {}", response);
+
+                GsonBuilder gsonBuilder = new GsonBuilder();
+                Gson gson = gsonBuilder.create();
+                CurrencyRate[] rates = gson.fromJson(result, CurrencyRate[].class);
+
+                List<CurrencyRate> currencyRateList = Arrays.asList(rates)
                         .stream()
                         .map(rate -> {
                             rate.setCheckedAt(LocalDateTime.now());
@@ -133,6 +155,12 @@ public class SpringCloudTaskK8sCronJobApplication {
             return false;
         }
         return true;
+    }
+
+    private Request getRequest(String url) {
+        return new Request.Builder()
+                .url(url)
+                .build();
     }
 
 }

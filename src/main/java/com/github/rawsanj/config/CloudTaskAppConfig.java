@@ -1,8 +1,9 @@
 package com.github.rawsanj.config;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
 
 @Configuration
 public class CloudTaskAppConfig {
@@ -13,8 +14,8 @@ public class CloudTaskAppConfig {
     }
 
     @Bean
-    RestTemplate restTemplate(){
-        return new RestTemplate();
+    OkHttpClient okHttpClient(){
+        return new OkHttpClient();
     }
 
 }

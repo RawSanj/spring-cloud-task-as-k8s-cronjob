@@ -11,12 +11,12 @@ public class TaskListener implements TaskExecutionListener {
 
     @Override
     public void onTaskStartup(TaskExecution taskExecution) {
-        LOGGER.info("onTaskStartup");
+        LOGGER.info("Load Currency Task - STARTED...!");
     }
 
     @Override
     public void onTaskEnd(TaskExecution taskExecution) {
-        LOGGER.info("onTaskEnd");
+        LOGGER.info("Load Currency Task - COMPLETED...!");
         if (taskExecution.getExitMessage() == null){
             taskExecution.setExitMessage("Success!");
         }
@@ -24,8 +24,9 @@ public class TaskListener implements TaskExecutionListener {
 
     @Override
     public void onTaskFailed(TaskExecution taskExecution, Throwable throwable) {
+        LOGGER.info("Load Currency Task - FAILED...!");
         LOGGER.info("Task Failed due to: {} because {}", throwable.getMessage(), throwable.getCause().getMessage());
         taskExecution.setExitMessage("Failed!");
-        taskExecution.setErrorMessage("Something went Wrong!");
+        taskExecution.setErrorMessage(throwable.getMessage());
     }
 }
