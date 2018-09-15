@@ -1,0 +1,32 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: spring-cloud-task-cronjob
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: spring-cloud-task-as-k8s-cronjob
+            image: 'rawsanj/spring-cloud-task-as-k8s-cronjob:0.1.0'
+            envFrom:
+            - configMapRef:
+                name: spring-cloud-task-cronjob-config
+            args:
+            - /bin/sh
+            - -c
+            - echo 'Starting Spring Batch Task' && java -jar app.jar
+          restartPolicy: OnFailure
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spring-cloud-task-cronjob-config
+data:
+  SPRING_DATASOURCE_URL: 'jdbc:mysql://mysql-service/spring-batch-db?useSSL=false'
+  SPRING_DATASOURCE_USERNAME: 'root'
+  SPRING_DATASOURCE_PASSWORD: 'SuperSecretMysqlPwd'
+  SPRING_MAIL_USERNAME: ''
+  SPRING_MAIL_PASSWORD: ''
