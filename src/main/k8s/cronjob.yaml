@@ -10,7 +10,7 @@ spec:
         spec:
           containers:
           - name: spring-cloud-task-as-k8s-cronjob
-            image: 'rawsanj/spring-cloud-task-as-k8s-cronjob:0.1.0'
+            image: 'rawsanj/spring-cloud-task-as-k8s-cronjob:0.1.2'
             envFrom:
             - configMapRef:
                 name: spring-cloud-task-cronjob-config
@@ -25,8 +25,11 @@ kind: ConfigMap
 metadata:
   name: spring-cloud-task-cronjob-config
 data:
-  SPRING_DATASOURCE_URL: 'jdbc:mysql://mysql-service/spring-batch-db?useSSL=false'
-  SPRING_DATASOURCE_USERNAME: 'root'
-  SPRING_DATASOURCE_PASSWORD: 'SuperSecretMysqlPwd'
+  MYSQL_DB_HOST: 'mysql-service'
+  MYSQL_DB_PORT: '3306'
+  MYSQL_DATABASE: 'spring-batch-db'
+  DATABASE_USERNAME: 'cronJobUser'
+  DATABASE_PASSWORD: 'SuperSecretMysqlPwd'
+  SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: 'org.hibernate.dialect.MySQL5Dialect'
   SPRING_MAIL_USERNAME: ''
   SPRING_MAIL_PASSWORD: ''
