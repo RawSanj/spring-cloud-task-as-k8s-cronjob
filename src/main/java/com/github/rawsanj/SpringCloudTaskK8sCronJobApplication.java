@@ -10,6 +10,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -36,7 +37,8 @@ public class SpringCloudTaskK8sCronJobApplication {
 
     private static final  Logger LOGGER = LoggerFactory.getLogger(SpringCloudTaskK8sCronJobApplication.class.getName());
 
-    private static final String URL = "https://bitpay.com/api/rates";
+    @Value("${API_URL}")
+    private String URL;
 
     public SpringCloudTaskK8sCronJobApplication(OkHttpClient okHttpClient, EmailNotificationService emailNotificationService, Environment environment, CurrencyRateRepository currencyRateRepository) {
         this.okHttpClient = okHttpClient;

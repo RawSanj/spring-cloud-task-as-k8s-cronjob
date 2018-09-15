@@ -4,6 +4,7 @@ metadata:
   name: spring-cloud-task-cronjob
 spec:
   schedule: "*/1 * * * *"
+  suspend: true
   jobTemplate:
     spec:
       template:
@@ -31,5 +32,6 @@ data:
   DATABASE_USERNAME: 'cronJobUser'
   DATABASE_PASSWORD: 'SuperSecretMysqlPwd'
   SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: 'org.hibernate.dialect.MySQL5Dialect'
+  API_URL: 'https://bitpay.com/api/rates'
   SPRING_MAIL_USERNAME: ''
   SPRING_MAIL_PASSWORD: ''
