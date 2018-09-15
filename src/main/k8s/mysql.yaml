@@ -40,6 +40,7 @@ spec:
             secretKeyRef:
               name: mysql-secret
               key: MYSQL_ROOT_PASSWORD
+
 ---
 apiVersion: v1
 kind: Service
@@ -53,6 +54,7 @@ spec:
     port: 3306
     targetPort: 3306
   type: ClusterIP
+
 ---
 apiVersion: v1
 kind: Secret
@@ -64,66 +66,3 @@ data:
   MYSQL_DATABASE: c3ByaW5nLWJhdGNoLWRi
   MYSQL_ROOT_PASSWORD: U3VwZXJTZWNyZXRNeXNxbFB3ZA==
   MYSQL_PASSWORD: U3VwZXJTZWNyZXRNeXNxbFB3ZA==
-
-#
-#---
-#apiVersion: apps/v1beta2
-#kind: Deployment
-#metadata:
-#	name: mysql-deployment
-#	labels:
-#		app: mysql
-#spec:
-#	replicas: 1
-#	selector:
-#		matchLabels:
-#			app: mysql
-#	template:
-#		metadata:
-#			labels:
-#				app: mysql
-#		spec:
-#			containers:
-#			- name: mysql
-#				 image: 'mysql'
-#					ports:
-#					- containerPort: 3306
-#					volumeMounts:
-#					- mountPath: "/var/lib/mysql"
-#							name: cache-volume
-#					envFrom:
-#						- secretRef:
-#						    name: mysql-secret
-#			volumes:
-#			- name: cache-volume
-#					emptyDir: {}
-#---
-#apiVersion: v1
-#kind: Service
-#metadata:
-#	name: mysql-service
-#spec:
-#	selector:
-#		app: mysql
-#	ports:
-#		- protocol: TCP
-#				port: 3306
-#				targetPort: 3306
-#	type: ClusterIP
-##---
-##apiVersion: v1
-##kind: ConfigMap
-##metadata:
-##  name: mysql-config
-##data:
-##  MYSQL_ROOT_PASSWORD: 'SuperSecretMysqlPwd'
-##  MYSQL_DATABASE: 'spring-batch-db'
-#---
-#apiVersion: v1
-#kind: Secret
-#metadata:
-#	name: mysql-secret
-#type: Opaque
-#data:
-#	MYSQL_ROOT_PASSWORD: U3VwZXJTZWNyZXRNeXNxbFB3ZAo=
-#	MYSQL_DATABASE: c3ByaW5nLWJhdGNoLWRiCg==
