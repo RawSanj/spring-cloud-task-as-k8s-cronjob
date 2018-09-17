@@ -4,7 +4,7 @@ metadata:
   name: spring-cloud-task-cronjob
 spec:
   schedule: "*/1 * * * *"
-  suspend: true
+  suspend: false
   jobTemplate:
     spec:
       template:
@@ -15,12 +15,15 @@ spec:
             envFrom:
             - configMapRef:
                 name: spring-cloud-task-cronjob-config
+            - secretRef:
+                name: spring-cloud-task-cronjob-secret
             args:
             - /bin/sh
             - -c
             - echo 'Starting Spring Batch Task' && java -jar app.jar
           restartPolicy: OnFailure
 ---
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -28,10 +31,18 @@ metadata:
 data:
   MYSQL_DB_HOST: 'mysql-service'
   MYSQL_DB_PORT: '3306'
-  MYSQL_DATABASE: 'spring-batch-db'
-  DATABASE_USERNAME: 'cronJobUser'
-  DATABASE_PASSWORD: 'SuperSecretMysqlPwd'
   SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: 'org.hibernate.dialect.MySQL5Dialect'
   API_URL: 'https://bitpay.com/api/rates'
-  SPRING_MAIL_USERNAME: ''
-  SPRING_MAIL_PASSWORD: ''
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: spring-cloud-task-cronjob-secret
+type: Opaque
+data:
+  DATABASE_USERNAME: Y3JvbkpvYlVzZXI=
+  MYSQL_DATABASE: c3ByaW5nLWJhdGNoLWRi
+  DATABASE_PASSWORD: U3VwZXJTZWNyZXRNeXNxbFB3ZA==
+  SPRING_MAIL_USERNAME: PEJhc2U2NCBFbmNvZGVkIEVtYWlsIEFkZHJlc3M+
+  SPRING_MAIL_PASSWORD: PEJhc2U2NCBFbmNvZGVkIEVtYWlsIFBhc3N3b3JkPg==
